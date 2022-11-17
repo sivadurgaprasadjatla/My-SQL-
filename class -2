@@ -1,0 +1,31 @@
+create DATABASE class2_db;
+
+use class2_db;
+
+create table if not exists employee (
+    id INt ,
+    name varchar(20),
+    address VARCHAR(50),
+    city varchar(20)
+);
+
+insert into employee 
+values (1,'siva','weavers colony,payakaraopeta','vizag');
+select * from employee ;
+
+-- add now coumn name dob in employee TABLE
+alter table employee add DOB date ;
+
+-- modify existing column in table 
+alter table employee modify column name varchar(100) ;
+
+-- rename column name in table
+alter table employee rename column name to Emp_name ;
+
+-- Delete existing column in given table 
+alter table employee DROP column DOB ;
+
+select * from employee ;
+
+-- add unique constraint on Id column in given table.
+alter table employee add constraint ID_column unique (id) ;
