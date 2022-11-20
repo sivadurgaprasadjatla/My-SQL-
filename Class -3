@@ -112,7 +112,6 @@ select * from employee where length(name) = 5;
 
 -- get the details of the employees whose name having atleast 6 charcters.
 select * from employee where name like '%______%' ;
--- find the employee whose name having 
 
 -- how to use is null or is not null in the where clause ;
 -- adding null values in the table to do the experiments on null.
