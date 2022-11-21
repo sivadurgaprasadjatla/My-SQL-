@@ -1,0 +1,246 @@
+use test_db ;
+
+show create table orders_data ;
+
+-- where clause and Group by clause ---->
+-- what is the proper sequence ? Answer is Where clasuse then Group by.
+
+-- How to use Group_concat
+-- write a query to print states present in the data set  for each country
+select country ,count(*) as No_of_states,Group_concat(state) as States_in_country from orders_data
+group by country ;
+
+-- write a query to print distinct states present in the data set  for each country
+select country ,Group_concat(distinct state) as States_in_country from orders_data
+group by country ;
+
+-- write a query to print distinct states in descending order  present in the data set  for each country
+select country ,Group_concat(distinct state order by state desc ) as States_in_country from orders_data
+group by country ;
+
+-- write a query to print distinct states in descending order  present in the data set  for each country
+-- and separate the states by '-'
+select country ,Group_concat(distinct state order by sate desc separator '-' ) as States_in_country from orders_data
+group by country ;
+
+select * from employee ;
+-- write a query to print all those employees records who are  getting more than 'kapil'
+select * from employee where salary > (select salary from employee where name = 'kapil') ;
+
+
+-- use of Having Clause
+-- Write a Query to find the country where only 1 order was placed from Orders-data table
+select country, count(*) no_of_orders from orders_data 
+group by country
+having count(*) = 1 ;
+
+-- Use of IN, Not IN 
+-- write a query to print all the orders which were placed in states -'seattle' and 'Goa'
+select * from orders_data where state in ('seattle','Goa');
+
+create table customer_order_data (
+Order_id Int,
+Cus_id int,
+Supplier_id int,
+cust_country varchar(30)
+) ;
+
+insert into customer_order_data values (101,200,300,'USA'), (102,201,301,'INDIA'),(103,202,302,'USA'),
+										(104,203,303,'Uk') ;
+
+select * from customer_order_data ;
+
+create table supplier_data (
+supplier_id int ,
+sup_country varchar (50)
+);
+
+insert into supplier_data values (300,'USA'),(303,'UK') ;
+
+-- write a query to  find all the customer order data where customer and supplier both living in same country
+select * from supplier_data ;
+select * from customer_order_data ;
+select * from customer_order_data 
+where cust_country in (select distinct sup_country from supplier_data) ;
+
+-- write a query to  find all the customer order data where customer and supplier both are not living in same country
+select * from customer_order_data 
+where cust_country not in (select distinct sup_country from supplier_data) ;
+
+-- Case Statement.
+create table student_marks (
+id int,
+name varchar(20),
+total_maarks int 
+);
+
+insert into student_marks values (	1,'shasank',50),
+(2,'Rahul',91),(3,'Amith',74),(4,'nikhil',65),(5,'rohit',86),(6,'Deepak',77) ;
+
+select * from student_marks ;
+
+-- write a query to calculate the grade for a student by following below criteria :
+# marks >= 90, Grade A+
+# marks < 90 and marks >= 85 , Grade A
+# marks <85 and marks >= 75 , Gradee B+
+# marks < 75 and marks >= 60 , Grade B
+# marks < 60 , Grade C ;
+
+select * from Student_marks ;
+
+select *, (
+case 
+	when total_marks >= 90 then 'A+'
+	when total_marks <90 and total_marks >= 85 then 'A'
+	when total_marks <85 and total_marks >= 75 then 'B+'
+	when total_marks <75 and total_marks >= 60 then 'B'
+	else 'C'
+end )Grades 
+from student_marks ;
+
+-- Uber Interview Question
+
+create table Binary_tree (
+node int,
+parent int
+);
+insert into Binary_tree values(5,8),(9,8),(4,5),(2,9),(1,5),(3,9),(8,Null) ; 
+select * from Binary_tree ;
+
+-- Saggregate the data if the node has no parent node - Root, If the node is not having child -Leaf,elase -inner
+
+select *, 
+(case
+	when parent = 8 then 'inner'
+    when parent = 5 or parent = 9 then 'leaf'
+    when parent is null then 'root'
+end) Data_type from Binary_tree ;
+    
+select *, 
+case 
+	when node not in (select distinct parent from Binary_tree where parent is not null) then 'Leaf'
+    when parent is null then 'Root'
+    else 'inner'
+end Data_type from Binary_tree ;
+
+-- Amazon Interview Question
+ create table Transcation
+ (
+ Tr_date date,
+ Merchant varchar(20),
+ Amount int,
+ payment_mode varchar(20)
+ ) ;
+ insert into transcation values ('2022-04-1','m1',150,'cash'),
+								('2022-04-1','m1',500,'online'),
+                                ('2022-04-2','m2',450,'Online'),
+                                ('2022-04-2','m1',100,'cash'), 
+                                ('2022-04-2','m3',600,'cash'), 
+                                ('2022-04-3','m5',200,'online'),
+                                ('2022-04-3','m2',100,'online') ;
+select * from transcation ;
+-- Question : write a query to calculate total amount received in cash,received in online for each mercaht
+-- Answer Should have following Columns -->merchant, suma amount of Cash_mode,sum amount of Online_mode
+select merchant,payment_mode,sum(amount) from transcation 
+group by merchant,payment_mode ;
+
+select * from transcation ;
+select merchant,
+case when payment_mode = 'cash' then sum(amount)
+end cash_mode,
+case when payment_mode = 'online' then sum(amount)
+end Online_mode from transcation
+Group by merchant,Payment_mode ;
+
+
+select merchant,
+sum(case when payment_mode = 'cash' then amount else 0
+end) cash_mode,
+sum(case when payment_mode = 'online' then amount else 0
+end) Online_mode from transcation
+Group by merchant ;
+
+select * from transcation ;
+----
+select merchant,sum(cash_mode),sum(online_mode) from (
+select merchant,
+(case when payment_mode = 'cash' then amount else 0
+end) cash_mode,
+(case when payment_mode = 'online' then amount else 0
+end) Online_mode from transcation
+Group by merchant,payment_mode ) a
+group by merchant ;
+
+
+select merchant,sum(cash_mode),sum(online_mode) from (
+select merchant,
+case when payment_mode = 'cash' then sum(amount) else 0
+end cash_mode,
+case when payment_mode = 'online' then sum(amount) else 0
+end Online_mode from transcation
+Group by merchant,Payment_mode) a
+group by merchant ;
+
+-- Example for Join
+create table orders
+(
+Order_id int,
+Cust_id int, 
+order_date date,
+Shiiper_id int
+) ;
+
+create table Customer
+(
+Cust_id int,
+Cust_name  varchar(20), 
+country varchar(20)
+);
+
+create table shippers
+(
+ship_id int,
+shipper_name varchar(20)
+);
+
+insert into orders values (10308,2,'2022-09-15',3),(10309,30,'2022-09-16',1),(10310,41,'2022-09-19',2);
+insert into customer values (1,'neel','India'),(2,'Nithin','USA'),(3,'Mukesh','UK');
+insert into shippers values (3,'abc'),(1,'xyz');
+
+select * from orders ;
+select * from customer ;
+-- Get the customer information for each order , if value of customer is present in Orders table(inner Join).
+select o.*,c.* from orders O inner join customer C on c.cust_id = O.Cust_id ;
+
+-- Left Join
+select o.*,c.* from orders O left join customer C on c.cust_id = O.Cust_id ;
+
+-- right Join
+select o.*,c.* from orders O right join customer C on c.cust_id = O.Cust_id ;
+
+-- Cross Join 
+select o.*,c.* from orders O  cross join customer C ;
+
+-- How to join more than 2 data sets
+-- perform innner join 
+-- Get the customer information for each order , if value of customer is present in Orders table(inner Join).
+-- also get the information of shipper name
+
+select c.*,o.*,s.* from orders O
+inner join customer C on c.cust_id = o.Cust_id
+inner join shippers S on s.ship_id = O.shiiper_id ;
+
+create table employee_full_data (
+emp_id int,
+name varchar(20),
+mgr_id int
+);
+
+insert into employee_full_data values (1,'shahsank',3),(2,'Amith',3),
+									  (3,'rajesh',4),(4,'Ankit',3),(6,'Nikhil', null);
+                                      
+select * from employee_full_data ;
+update employee_full_data set mgr_id = 6 where emp_id = 4 ;
+
+select E1.*,M1.name Manager_name from employee_full_data E1,employee_full_data M1 
+where e1.mgr_id = m1.emp_id;
