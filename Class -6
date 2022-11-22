@@ -1,0 +1,122 @@
+use trail1;
+create table employee (
+Emp_id int,
+Emp_name Varchar(20),
+Mobile bigint,
+Dept_name Varchar(20),
+Salary int
+);
+
+insert into employee values (1,'shahsank',8977227426,'software',1000),
+(2,'Rahul',897777246,'IT',2000),(3,'Amith',897722536,'HR',5000),
+(4,'Nikhil',897722343546,'IT',3000) ;
+
+-- Views will not Occupy any space on Memory.
+-- Create Views for dispaly the required data to different Departments from Original Table/ Database.
+-- create view for HR Department.
+create view Emp_details_for_HR_Dept as 
+select emp_id,emp_name,salary from employee ;
+
+select * from Emp_details_for_HR_Dept ;
+
+-- create  logic for deepartment salary sum for Finance Team
+create view Dpt_wise_salary as 
+select dept_name,sum(salary) total_salary from employee
+group by dept_name ;
+
+select * from Dpt_wise_salary ;
+
+-- Union & Union All Operations
+create table student 
+( 
+  stu_id int,
+  name varchar(20),
+  email1 varchar(20),
+  city varchar(20)
+  );
+  
+  insert into student values (1,'sudhanshu','abc@gmail.com','Lucknow'),(2,'siva','siva@gmail.com','HYD'),
+  (6,'durga','durga@gmail.com','Vizag'),(8,'prasad','prasad@gmail.com','Patna'),
+  (12,'vani','vani@gmail.com','Varanasi');
+  
+  create table student2 
+  (
+   student_id int,
+   name varchar(20),
+   email varchar(20),
+   city varchar (20)
+	);
+    
+insert into student2 values (3,'nikhil','wer@gmailcom','Bhubaneswar'),(6,'Ram','wer@gmailcom','DURG'),
+(8,'kalyan','klr@gmailcom','Kunur'),(10,'Raman','ramn@gmailcom','revupalem'),
+(15,'tirumala','tir@gmailcom','guntur');
+insert into student2 values (1,'sudhanshu','abc@gmail.com','Lucknow'),(2,'siva','siva@gmail.com','HYD');
+
+-- Common Table Expression (CTE)
+
+create table amazon_Employee (
+emp_id int,
+emp_name varchar(20),
+dept_id int,
+salary int
+);
+
+insert into amazon_employee values (1,'shashank',100,10000),(2,'rahul',100,20000),(3,'Amith',101,15000),
+(4,'Mohit',101,17000),(5,'Nikhil',102,30000);
+
+create table department (
+dept_id int,
+Dep_name varchar(20)
+);
+
+insert into department values (100,'software'),(101,'HR'),(102,'IT'),(103,'Finance');
+
+#Query --> write a query to print the name of the department along with the total salary paid in each dept.
+select  Dep_name,total_salary from
+(select dept_id,sum(salary) as Total_Salary  from amazon_employee group by dept_id)tmp
+inner join department D on D.dept_id = tmp.Dept_id ;
+
+-- BY CTE MEthod
+with Dept_wise_salary as 
+(select dept_id,sum(salary) as Total_Salary  from amazon_employee group by dept_id)
+select  Dep_name,total_salary from
+Dept_wise_salary tmp
+inner join department D on D.dept_id = tmp.Dept_id ;
+
+-- Recursive CTE
+#Query --> write a query to generate numbers from 1 to 10
+with recursive CTE as (
+select 1 as n
+union 
+select n+1 from cte where n<10
+)
+select * from cte ;
+
+use trail1 ;
+create table emp_mgr
+(
+id int,
+name varchar(50),
+manager_id int,
+designation varchar(50),
+primary key (id)
+);
+
+insert into emp_mgr values(1,'Shripath',null,'CEO');
+insert into emp_mgr values(2,'Satya',5,'SDE');
+insert into emp_mgr values(3,'Jia',5,'DA');
+insert into emp_mgr values(4,'David',5,'DS');
+insert into emp_mgr values(5,'Michael',7,'Manager');
+insert into emp_mgr values(6,'Arvind',7,'Architect');
+insert into emp_mgr values(7,'Asha',1,'CTO');
+insert into emp_mgr values(8,'Maryam',1,'Manager');
+
+select * from emp_mgr;
+
+--- for our CTO 'Asha', present her org chart
+with recursive emp_hir as  
+(
+   select id, name, manager_id, designation from emp_mgr where name='Asha'
+   UNION
+   select em.id, em.name, em.manager_id, em.designation from emp_hir eh inner join emp_mgr em on eh.id = em.manager_id
+)
