@@ -165,3 +165,4 @@ select age,sum(salary) as total_Salary_By_Age,
         count(*) as No_of_employees_By_Age,
         Avg(salary) as Avg_salary_BY_age from employee
         Group by age;
+ 
