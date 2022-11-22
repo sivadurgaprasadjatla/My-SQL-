@@ -244,3 +244,4 @@ update employee_full_data set mgr_id = 6 where emp_id = 4 ;
 
 select E1.*,M1.name Manager_name from employee_full_data E1,employee_full_data M1 
 where e1.mgr_id = m1.emp_id;
+ 
