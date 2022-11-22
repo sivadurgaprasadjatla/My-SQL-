@@ -155,5 +155,5 @@ update employee set salary = 80000 where hiring_date = '2021-08-10' ;
 -- delete records of the employee who joined company on 2021-08-10
 
 delete from employee where hiring_date = '2021-08-10' ;
----
+
 
