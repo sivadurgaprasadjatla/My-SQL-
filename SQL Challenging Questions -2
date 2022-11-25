@@ -1,0 +1,351 @@
+use challenging_sql_questions ;
+/* query 51
+A country is big if:
+●	it has an area of at least three million (i.e., 3000000 km2), or
+●	it has a population of at least twenty-ﬁve million (i.e., 25000000).
+
+Write an SQL query to report the name, population, and area of the big countries.
+Return the result table in any order.
+
+country table -->name is the primary key column for this table.
+Each row of this table gives information about the name of a country, 
+the continent to which it belongs, its area, the population, and its GDP value.
+
+*/
+
+create table country (
+name varchar(30),
+continent varchar(30),
+area int,
+population int,
+GDP bigint );
+
+insert into country values ('Afghanistan','Asia',652230,25500100,20343000000),('Albania','Europe',28748,2831741,12960000000),
+('Algeria','Africa',2381741,37100000,188681000000),('Andorra','Europe',468,78115,3712000000),
+('Angola','Africa',1246700,20609294,100990000000) ;
+
+select * from country where area >= 3000000 or  population >= 25000000 ;
+
+/*Query -->52
+Write an SQL query to report the names of the customer that are not referred by the customer with id
+= 2.
+Return the result table in any order.
+
+customer Table -->id is the primary key column for this table.
+Each row of this table indicates the id of a customer, their name, and the id of the customer who referred them.
+*/
+
+create table customer (
+id int,
+name varchar(30),
+referee_id int default null) ;
+
+insert into customer(id,name,referee_id) values (1,'will',null),(2,'jane',null),(3,'Alex',2),(4,'Bill',null),(5,'Zack',1),(6,'Mark',2) ;
+
+select name from customer 
+where id not in (select id from customer where referee_id =2) ;
+
+/*Query 53
+Write an SQL query to report all customers who never order anything. 
+Return the result table in any order
+Table: Customers -->id is the primary key column for this table.
+Each row of this table indicates the ID and name of a customer
+
+Table: Orders -->id is the primary key column for this table.
+customerId is a foreign key of the ID from the Customers table.
+Each row of this table indicates the ID of an order and the ID of the customer who ordered it.
+
+.*/
+drop table if exists orders;
+drop table if exists customers;
+create table customers (
+id int,
+name varchar(20) );
+
+create table orders (
+id int,
+customerid int ) ;
+
+insert into customers values (1,'Joe'),(2,'Henry'),(3,'sam'),(4,'Max') ;
+insert into orders values (1,3),(2,1);
+
+select * from customers where id not in (select distinct customerid from orders) ;
+
+/*Query 54
+Write an SQL query to ﬁnd the team size of each of the employees.
+ Return result table in any order.
+ Table: Employee -->employee_id is the primary key for this table.
+Each row of this table contains the ID of each employee and their respective team.
+ 
+ */
+ 
+ drop table if exists employee ;
+ create table employee (employee_id int, team_id int);
+ insert into employee values (1,8),(2,8),(3,8),(4,7),(5,9),(6,9);
+ 
+ select employee_id,
+ count(*) over (partition by team_id ) team_size from employee
+ order by employee_id ;
+ 
+ /*Query -->55
+A telecommunications company wants to invest in new countries. 
+The company intends to invest in the countries where the average call duration of the calls in this country is strictly greater than the global average call duration.
+Write an SQL query to ﬁnd the countries where this company can invest. 
+Return the result table in any order.
+
+Table Country---> country_code is the primary key for this table.
+Each row of this table contains the country name and its code. country_code will be in the form 'xxx' where x is digits.
+
+Table Calls:--->There is no primary key for this table, it may contain duplicates.
+Each row of this table contains the caller id, caller id and the duration of the call in minutes. caller_id
+!= callee_id
+
+Table Person -->
+id is the primary key for this table.
+Each row of this table contains the name of a person and their phone number.
+Phone number will be in the form 'xxx-yyyyyyy' where xxx is the country code (3 characters) and yyyyyyy is the phone number (7 characters) where x and y are digits. Both can contain leading zeros.
+
+ */
+ 
+ create table person (
+ id int,
+ name varchar (30),
+ phone_number int ) ;
+ 
+/*Not able to took data into table. Max range of longtext is 4,294,967,295 characters. 
+But to enter 11digit  mobile number, its was insufficient data type
+*/
+
+/*Query -->56
+Write an SQL query to report the device that is ﬁrst logged in for each player. 
+Return the result table in any order.
+*/
+
+create table Activity (
+player_id int,
+device_id int,
+event_date date,
+games_played int);
+
+insert into activity values (1,2,'2016-03-01',5),(1,2,'2016-05-02',6),(2,3,'2017-06-25',1),
+(3,1,'2016-03-02',0),(3,4,'2018-07-03',5);
+ 
+ select player_id,device_id from activity 
+ where (player_id,event_date) in (
+ select player_id,min(event_date) first_login from activity 
+group by player_id );
+ 
+ /*
+ Query-->57
+ Write an SQL query to ﬁnd the customer_number for the customer who has placed the largest number of orders.
+The test cases are generated so that exactly one customer will have placed more orders than any other customer.
+ */
+
+ create table orders (
+ order_number int,
+ customer_number int) ;
+ 
+ insert into orders values (1,1),(2,2),(3,3),(4,3);
+ 
+ select customer_number ,count(*) from orders
+ group by customer_number
+ having count(*) = (select max(count) from (select  count(*) count from orders
+										  group by customer_number)t);
+                                          
+ select customer_number,NO_of_sales from(
+ select customer_number,
+		count(*) over (partition by customer_number) NO_of_sales from orders )t
+where no_of_sales = (select max(NO_of_sales) from ( select customer_number,
+		count(*) over (partition by customer_number) NO_of_sales from orders )t1)
+group by customer_number ;
+
+/*Query -->58
+Write an SQL query to report all the consecutive available seats in the cinema. 
+Return the result table ordered by seat_id in ascending order.
+The test cases are generated so that more than two seats are consecutively available. 
+cinema table -->
+seat_id is an auto-increment primary key column for this table.
+Each row of this table indicates whether the ith seat is free or not. 1 means free while 0 means occupied.
+
+*/
+
+Create table If Not Exists cinema (
+    seat_id int primary key auto_increment, 
+    free bool);
+Truncate table cinema;
+
+insert into cinema (seat_id, free) values ('1', '1');
+insert into cinema (seat_id, free) values ('2', '0');
+insert into cinema (seat_id, free) values ('3', '1');
+insert into cinema (seat_id, free) values ('4', '1');
+insert into cinema (seat_id, free) values ('5', '1');
+
+(select nxt.seat_id Avialble_consecutive_seats from cinema Previous,cinema nxt
+where previous.seat_id = nxt.seat_id+1 and previous.free = 1 and nxt.free = 1)
+union
+(select previous.seat_id Avialble_consecutive_seats from cinema Previous,cinema nxt
+where previous.seat_id = nxt.seat_id+1 and previous.free = 1 and nxt.free = 1);
+
+select distinct previous.seat_id from cinema Previous,cinema nxt 
+where abs(previous.seat_id - nxt.seat_id) = 1  
+and previous.free = 1 and nxt.free  = 1
+
+/*Query -->59
+Write an SQL query to report the names of all the salespersons 
+who did not have any orders related to the company with the name "RED".
+
+Table: SalesPerson -->sales_id is the primary key column for this table.
+Each row of this table indicates the name and the ID of a salesperson alongside their salary, commission rate, and hire date.
+
+Table: Company -->com_id is the primary key column for this table.
+Each row of this table indicates the name and the ID of a company and the city in which the company is located.
+
+Table: Orders -->order_id is the primary key column for this table.
+com_id is a foreign key to com_id from the Company table. sales_id is a foreign key to sales_id from the SalesPerson table.
+Each row of this table contains information about one order. This includes the ID of the company, the ID of the salesperson, the date of the order, and the amount paid.
+*/
+
+create table salesperson (
+sales_id int,
+name varchar(20),
+salary int,
+commision_rate int,
+hire_date date );
+
+create table company (
+com_id int,
+name varchar(20),
+city varchar(20) );
+
+drop table if exists orders ;
+create table orders (
+order_id int,
+order_date date,
+com_id int,
+sales_id int,
+amount int );
+
+insert into salesperson values (1,'Jhon',100000,6,'2006-4-1'),(2,'amy',12000,5,'2010-5-1'),
+(3,'mark',65000,12,'2008-12-25'),(4,'pam',25000,25,'2005-1-1'),(5,'Alex',5000,6,'2007-2-3');
+
+insert into company values (1,'Red','Bostan'),(2,'Orange','NewYork'),(3,'Yellow','Bostan'),
+(4,'Green','Austin');
+
+insert into orders values (1,'2014-1-1',3,4,10000),(2,'2014-2-1',4,5,5000),
+(3,'2014-03-1',1,1,50000),(4,'2014-4-1',1,4,25000);
+
+select distinct name from salesperson where sales_id not in(
+select sales_id from orders 
+where com_id  in(select com_id from company where name ='RED'));
+
+/*Query -->60
+Write an SQL query to report for every three line segments whether they can form a triangle. 
+Return the result table in any order.
+Table: Triangle -->
+(x, y, z) is the primary key column for this table.
+Each row of this table contains the lengths of three line segments.
+*/
+
+use challenging_sql_questions ;
+create table traingle (
+X int,
+Y int,
+Z int) ;
+
+insert into traingle values (13,15,30),(10,20,15) ;
+
+select x,y,z,case
+when X<y+Z and Y < x+Z and Z < x+y then 'Yes' else 'No' end  Trailngle_status 
+from traingle
+
+/*Query --> 61
+Write an SQL query to report the shortest distance between any two points from the Point table. 
+
+Point Table -->x is the primary key column for this table.
+Each row of this table indicates the position of a point on the X-axis.
+
+*/
+
+create table point (X int);
+insert into point values (-1),(0),(2) ;
+select p1.x as shortest_path,abs(p1.x - p2.x) shortest_distance from point P1 ,Point p2
+where abs(p1.x - p2.x) = (select min(abs(p1.x-p2.x)) from point p1,point p2 where p1.x <> p2.x) ;
+
+/*Query-->
+Write a SQL query for a report that provides the pairs (actor_id, director_id) where the actor has cooperated with the director at least three times
+
+ActorDirestor table --> 
+timestamp is the primary key column for this table.
+
+*/
+
+create table actorDirector (
+actor_id int,
+director_id int,
+timestamp int) ;
+
+insert into actordirector values (1,1,0),(1,1,1),(1,1,2),(1,2,3),(1,2,4),(2,1,5),(2,1,6);
+select actor_id, director_id,count(*)  from actordirector 
+group by actor_id,director_id
+having count(*) >= 3 ;
+
+/*Query-->63
+Write an SQL query that reports the product_name, year, and price for each sale_id in the Sales table. 
+Return the resulting table in any order.
+
+Products table -->product_id is the primary key of this table.
+Each row of this table indicates the product name of each product.
+
+sales tble -->(sale_id, year) is the primary key of this table. product_id is a foreign key to the Product table.
+Each row of this table shows a sale on the product product_id in a certain year. Note that the price is per unit.
+
+*/
+
+drop table if exists sales ;
+drop table if exists products ;
+
+create table products (
+product_id int,
+product_name varchar(20) );
+
+create table sales (
+sale_id int,
+product_id int,
+year int,
+quantity int,
+price int);
+
+insert into sales values (1,100,2008,10,5000),(2,100,2009,12,5000),(7,200,2011,15,9000) ;
+insert into products values (100,'Nolia'),(200,'Apple'),(300,'samsung');
+
+select s.sale_id,p.product_name ,s.year,s.price  from sales s
+inner join products  P
+on p.product_id = s.product_id ;
+
+/*Query -->64
+
+Write an SQL query that reports the average experience years of all the employees for each project, rounded to 2 digits.
+
+Employee Table -->
+employee_id is the primary key of this table.
+Each row of this table contains information about one employee.
+
+Project_table -->
+(project_id, employee_id) is the primary key of this table. employee_id is a foreign key to the Employee table.
+Each row of this table indicates that the employee with employee_id is working on the project with project_id.
+
+*/
+
+create table employee (
+employee_id int,
+name varchar(30),
+exp_year int );
+
+create table project (
+project_id int,
+employee_id int );
+
+insert into project values(1,1),(1,2),(1,3),(2,1),(2,4) ;
+insert into employee values (1,'Khaled',3),(2,'Ali',2),(3,'John',3),(4,'Doe',2) ;
+select * from project ;
+
